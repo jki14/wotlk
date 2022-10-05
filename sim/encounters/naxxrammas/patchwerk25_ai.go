@@ -55,7 +55,7 @@ func NewPatchwerk25AI() core.AIFactory {
 func (ai *Patchwerk25AI) Initialize(target *core.Target) {
 	ai.Target = target
 
-	//ai.registerHatefulStrikeSpell(target)
+	ai.registerHatefulStrikeSpell(target)
 	ai.registerFrenzySpell(target)
 }
 
@@ -126,12 +126,12 @@ func (ai *Patchwerk25AI) DoAction(sim *core.Simulation) {
 
 	// TODO: Only enable Hateful Strike in solo sim if you are assigned OT instead of MT
 	// TODO: Actual targeting logic for Hateful Strike in raidsim
-	//if ai.HatefulStrike.IsReady(sim) {
-	//	ai.HatefulStrike.Cast(sim, ai.Target.CurrentTarget)
-	//}
+	if ai.HatefulStrike.IsReady(sim) {
+		ai.HatefulStrike.Cast(sim, ai.Target.CurrentTarget)
+	}
 
-	//if ai.Target.GCD.IsReady(sim) {
-	//	waitUntil := 0 //ai.HatefulStrike.ReadyAt()
-	//	ai.Target.WaitUntil(sim, waitUntil)
-	//}
+	if ai.Target.GCD.IsReady(sim) {
+		waitUntil := ai.HatefulStrike.ReadyAt()
+		ai.Target.WaitUntil(sim, waitUntil)
+	}
 }
