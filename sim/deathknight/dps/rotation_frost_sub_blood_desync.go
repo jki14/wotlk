@@ -80,11 +80,15 @@ func (dk *DpsDeathknight) setupFrostSubBloodDesyncERWOpener() {
 		NewAction(dk.RotationActionCallback_UA_Frost).
 		NewAction(dk.RotationActionCallback_BT).
 		NewAction(dk.RotationActionCallback_FrostSubBlood_Obli).
-		NewAction(dk.RotationActionCallback_FrostSubBlood_Sequence_Pesti_Desync).
-		NewAction(dk.RotationActionCallback_FS).
+		NewAction(dk.RotationActionUH_CancelBT).
 		NewAction(dk.RotationActionCallback_RD).
-		NewAction(dk.RotationActionCallback_FS_Special).
 		NewAction(dk.RotationActionCallback_HW).
+		NewAction(dk.RotationActionCallback_FS).
+		NewAction(dk.RotationActionCallback_FrostSubBlood_Sequence_Pesti_Desync).
+		NewAction(dk.RotationActionCallback_FS_Special).
+		NewAction(dk.RotationActionCallback_FrostSubBlood_Obli).
+		NewAction(dk.RotationActionCallback_FrostSubBlood_Obli).
+		NewAction(dk.RotationActionCallback_FrostSubBlood_Sequence_Pesti_Desync).
 		NewAction(dk.RotationActionCallback_FrostSubBlood_DesyncRotation)
 }
 
@@ -129,22 +133,23 @@ func (dk *DpsDeathknight) RotationActionCallback_FrostSubBlood_DesyncRotation(si
 	if dk.UnbreakableArmor.CanCast(sim) && dk.BloodTap.CanCast(sim) {
 
 		if b > 0 {
+			dk.BloodTap.Cast(sim, target)
 			dk.UnbreakableArmor.Cast(sim, target)
 			dk.castAllMajorCooldowns(sim)
-			dk.BloodTap.Cast(sim, target)
+			dk.CancelBloodTap(sim)
 		} else if d == 2 {
 			dk.UnbreakableArmor.Cast(sim, target)
 			dk.castAllMajorCooldowns(sim)
-			dk.BloodTap.Cast(sim, target)
 		} else if b == 0 && d == 0 {
 			dk.BloodTap.Cast(sim, target)
 			dk.UnbreakableArmor.Cast(sim, target)
 			dk.castAllMajorCooldowns(sim)
+			dk.CancelBloodTap(sim)
 		}
 
 	}
 
-	if km && dk.FrostStrike.CanCast(sim) && dk.shDiseaseCheck(sim, target, dk.FrostStrike, false, 1, 0) {
+	if t+abGcd <= ob+2500*time.Millisecond && km && dk.FrostStrike.CanCast(sim) && dk.shDiseaseCheck(sim, target, dk.FrostStrike, false, 1, 0) {
 		dk.FrostStrike.Cast(sim, target)
 		return -1
 	}
@@ -154,28 +159,23 @@ func (dk *DpsDeathknight) RotationActionCallback_FrostSubBlood_DesyncRotation(si
 		return -1
 	}
 
-	if t+abGcd <= ob && dk.FrostStrike.CanCast(sim) && dk.CurrentRunicPower() >= 100.0 {
+	if t+abGcd <= ob+2500*time.Millisecond && dk.FrostStrike.CanCast(sim) && dk.CurrentRunicPower() >= 100.0 {
 		dk.FrostStrike.Cast(sim, target)
 		return -1
 	}
 
-	if t+spGcd <= ob && rime && dk.HowlingBlast.CanCast(sim) && dk.CurrentRunicPower() <= dk.MaxRunicPower()-5.0 {
+	if t+spGcd <= ob+2500*time.Millisecond && rime && dk.HowlingBlast.CanCast(sim) && dk.CurrentRunicPower() <= dk.MaxRunicPower()-5.0 {
 		dk.HowlingBlast.Cast(sim, target)
 		return -1
 	}
 
-	if t+abGcd <= ob && dk.FrostStrike.CanCast(sim) {
+	if t+abGcd <= ob+2500*time.Millisecond && dk.FrostStrike.CanCast(sim) {
 		dk.FrostStrike.Cast(sim, target)
 		return -1
 	}
 
-	if t+spGcd <= ob && dk.HornOfWinter.CanCast(sim) && dk.CurrentRunicPower()+10.0 <= dk.MaxRunicPower() {
+	if t+spGcd <= ob+2500*time.Millisecond && dk.HornOfWinter.CanCast(sim) && dk.CurrentRunicPower()+10.0 <= dk.MaxRunicPower() {
 		dk.HornOfWinter.Cast(sim, target)
-		return -1
-	}
-
-	if dk.LeftBloodRuneReady() {
-		dk.Pestilence.Cast(sim, target)
 		return -1
 	}
 
