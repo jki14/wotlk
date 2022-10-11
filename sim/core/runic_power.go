@@ -279,6 +279,37 @@ func (rp *RunicPowerBar) CurrentRuneGraces(sim *Simulation) (time.Duration, time
 	return rp.CurrentBloodRuneGrace(sim), rp.CurrentFrostRuneGrace(sim), rp.CurrentUnholyRuneGrace(sim)
 }
 
+// Rune timings API
+// - RuneAt - Returns sim.CurrentTime if its available, should return sim.CurrentTime + dt if it will regen in dt
+// - BloodRuneAt - Returns the regen timers of the blood runes
+// - DeathRuneAt - Returns the regen timers of the spent death runes
+
+func (rp *RunicPowerBar) RuneAt(sim *Simulation, index int) time.Duration {
+	if rp.runeStates&isSpents[index] != 0 {
+		return sim.CurrentTime
+	}
+
+	return rp.runeMeta[index].regenAt
+}
+
+func (rp *RunicPowerBar) DeathRuneAt(sim *Simulation, index int) []time.Duration {
+	var timersIdx int
+	var timers [6]time.Duration
+	for i := 0; i < 6; i++ {
+		if rp.runeStates&isDeaths[i] != 0 {
+			if rp.runeStates&isSpents[i] != 0 {
+				timers[timersIdx] = sim.CurrentTime
+			} else {
+				timers[timersIdx] = rp.runeMeta[i].regenAt
+			}
+
+			timersIdx++
+		}
+	}
+
+	return timers[0 : timersIdx-1]
+}
+
 func (rp *RunicPowerBar) NormalSpentBloodRuneReadyAt(sim *Simulation) time.Duration {
 	readyAt := NeverExpires
 	if rp.runeStates&isDeaths[0] == 0 && rp.runeStates&isSpents[0] != 0 {

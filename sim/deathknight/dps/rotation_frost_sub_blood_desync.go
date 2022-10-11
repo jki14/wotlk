@@ -1,6 +1,7 @@
 package dps
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/wowsims/wotlk/sim/core"
@@ -89,7 +90,13 @@ func (dk *DpsDeathknight) setupFrostSubBloodDesyncERWOpener() {
 		NewAction(dk.RotationActionCallback_FrostSubBlood_Obli).
 		NewAction(dk.RotationActionCallback_FrostSubBlood_Obli).
 		NewAction(dk.RotationActionCallback_FrostSubBlood_Sequence_Pesti_Desync).
-		NewAction(dk.RotationActionCallback_FrostSubBlood_DesyncRotation)
+		NewAction(dk.RotationActionCallback_FrostSubBlood_DesyncRotation_Experimental)
+}
+
+func (dk *DpsDeathknight) RotationActionCallback_FrostSubBlood_DesyncRotation_Experimental(sim *core.Simulation, target *core.Unit, s *deathknight.Sequence) time.Duration {
+	fmt.Println("%.1f s | %.1f s\n", dk.NextBloodRuneAt())
+
+	return -1
 }
 
 func (dk *DpsDeathknight) RotationActionCallback_FrostSubBlood_DesyncRotation(sim *core.Simulation, target *core.Unit, s *deathknight.Sequence) time.Duration {
@@ -132,30 +139,30 @@ func (dk *DpsDeathknight) RotationActionCallback_FrostSubBlood_DesyncRotation(si
 
 	if dk.UnbreakableArmor.CanCast(sim) && dk.BloodTap.CanCast(sim) {
 
-		if b > 0 {
+		if b > 0 && d == 0 {
 			dk.BloodTap.Cast(sim, target)
 			dk.UnbreakableArmor.Cast(sim, target)
 			dk.castAllMajorCooldowns(sim)
-			dk.CancelBloodTap(sim)
 		} else if d == 2 {
 			dk.UnbreakableArmor.Cast(sim, target)
 			dk.castAllMajorCooldowns(sim)
+			dk.BloodTap.Cast(sim, target)
 		} else if b == 0 && d == 0 {
 			dk.BloodTap.Cast(sim, target)
 			dk.UnbreakableArmor.Cast(sim, target)
 			dk.castAllMajorCooldowns(sim)
-			dk.CancelBloodTap(sim)
 		}
 
 	}
 
-	if t+abGcd <= ob+2500*time.Millisecond && km && dk.FrostStrike.CanCast(sim) && dk.shDiseaseCheck(sim, target, dk.FrostStrike, false, 1, 0) {
-		dk.FrostStrike.Cast(sim, target)
+	if (f > 0 && u > 0) || (f == 0 && u > 0 && d > 0) || (f > 0 && u == 0 && d > 0) {
+		dk.CancelBloodTap(sim)
+		dk.Obliterate.Cast(sim, target)
 		return -1
 	}
 
-	if f > 0 && u > 0 || ((f == 0 && u > 0 && d > 0) || (f > 0 && u == 0 && d > 0)) && dk.shDiseaseCheck(sim, target, dk.Obliterate, true, 1, 0) {
-		dk.Obliterate.Cast(sim, target)
+	if t+abGcd <= ob+2500*time.Millisecond && km && dk.FrostStrike.CanCast(sim) && dk.shDiseaseCheck(sim, target, dk.FrostStrike, false, 1, 0) {
+		dk.FrostStrike.Cast(sim, target)
 		return -1
 	}
 
