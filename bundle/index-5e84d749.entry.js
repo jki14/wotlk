@@ -1,0 +1,2 @@
+import"./modulepreload-polyfill-e60e1b44.chunk.js";import{P as e,S as n,T as i}from"./raid_sim_action-9e0deda9.chunk.js";import{S as a}from"./individual_sim_ui-458732be.chunk.js";import{E as m}from"./sim-2c4d0674.chunk.js";import"./totem_inputs-b67adc4c.chunk.js";const o=new a,s=new e(n.SpecEnhancementShaman,o);o.raid.setPlayer(i.nextEventID(),0,s),new m(document.body,s);
+//# sourceMappingURL=index-5e84d749.entry.js.map
